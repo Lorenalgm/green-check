@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View, Image, ActivityIndicator } fr
 import logo from './assets/logo-green-check.png';
 import iconeScanner from './assets/scanner.png';
 import { BarCodeScanner } from 'expo-barcode-scanner';
+import Constants from 'expo-constants';
 
 export default function App() {
   const [possuiPermissao, setPossuiPermissao] = useState(null);
@@ -52,37 +53,51 @@ export default function App() {
       {/* Abre a câmera para escanear */}
       {escaneado && <BarCodeScanner
         onBarCodeScanned={localizaProduto}
-        style={StyleSheet.absoluteFillObject} />}
+        style={[StyleSheet.absoluteFillObject]}
+      />}
 
       {/* Carregando a leitura do código de barras */}
       {loading && 
       <View style={styles.overlay}>
               <ActivityIndicator size="large" color="#ffffff" />
-              <Text style={styles.overlayText}>Carregando...</Text>
+              <Text>Carregando...</Text>
       </View>}
 
       {/* Produto foi lido e os detalhes exibidos  */}
-      {produto && <><Text>Código de barras escaneado!</Text>
-          <Text>Produto: {produto.product.brands}</Text>
-          <Image style={{width: '100%', height: '50%'}} source={{ uri: produto.product.image_front_small_url }} />
-          {/* <Text style={styles.overlayText}>Impacto ambiental: {productData.product.environment_impact_level}</Text> */}
-          <TouchableOpacity onPress={() => setProduto(null)}>
-            <Text>Voltar</Text>
+      {produto && !loading && <View style={styles.containerCodigoLido}>
+          <View style={styles.containerProduto} >
+            <View>
+              <Image style={styles.logoProduto} source={{ uri: produto.product.image_url }} />
+              <Text style={styles.tituloProduto}>{produto.product?.product_name}</Text>
+            </View>
+            <View>
+              <Text style={styles.textoTopicoProduto}>Impacto Ambiental</Text>
+              <Text>Eco Score: Letra {produto.product.ecoscore_grade}</Text>
+            </View>
+            <View>
+              <Text style={styles.textoTopicoProduto}>Valores nutricionais</Text>
+              <Text>Score: {produto.nutriscore_data?.grade?produto.nutriscore_data.grade: 'Não definido'} </Text>
+            </View>
+          </View>
+          
+          <TouchableOpacity style={styles.botao} onPress={() => setProduto(null)}>
+            <Text style={styles.textoBotao}>Voltar</Text>
           </TouchableOpacity>
-      </>}
+      </View>}
 
       {/* Tela inicial */}
-      {!escaneado && !produto && <><View style={styles.conteudo}>
+      {!escaneado && !produto && <View style={styles.containerPaginaInicial}>
+      <View style={styles.conteudo}>
         <Image source={iconeScanner} />
         <View>
-          <Text style={styles.titulo}>Comece escaneando</Text>
-          <Text style={styles.descricao}>Aproxime seu celular do código de barras do produto</Text>
+          <Text style={styles.titulo}>Escaneie um produto</Text>
+          <Text style={styles.descricao}>Aproxime seu celular do código de barras {"\n"} para obter informações sustentáveis</Text>
         </View>
       </View>
-      <TouchableOpacity style={styles.botaoLerCodigo} onPress={() => setEscaneado(true)}>
-        <Text style={styles.textoLerCodigo}>Ler código</Text>
+      <TouchableOpacity style={styles.botao} onPress={() => setEscaneado(true)}>
+        <Text style={styles.textoBotao}>Escanear produto</Text>
       </TouchableOpacity>
-      </>}
+      </ View>}
     </View>
   );
 }
@@ -93,11 +108,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-around',
     alignItems: 'center',
+    paddingTop: Constants.statusBarHeight,
+  },
+  containerPaginaInicial: {
+    height: '80%',
+    justifyContent: 'space-around',
   },
   conteudo: {
     alignItems: 'center',
     justifyContent: 'space-around',
-    height: '50%',
+    height: 400,
   },
   titulo: {
     fontWeight: 'bold',
@@ -105,14 +125,41 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center'
   },
-  botaoLerCodigo: {
+  descricao:{
+    textAlign: 'center'
+  },  
+  botao: {
     backgroundColor: '#83A901',
-    paddingVertical: 10,
+    paddingVertical: 15,
     paddingHorizontal: 60,
-    borderRadius: 10
+    borderRadius: 10,
   },
-  textoLerCodigo: {
+  textoBotao: {
     fontWeight: 'bold',
-    color: 'white'
+    color: 'white',
+    fontSize: 16
+  },
+  containerCodigoLido:{
+    height: '80%',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  containerProduto: {
+    alignItems: 'center',
+    justifyContent: 'space-around', 
+    width: '100%'
+  },
+  tituloProduto: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  logoProduto: {
+    width: '50%',
+    height: '50%',
+  },
+  textoTopicoProduto: {
+    fontWeight: 'bold',
+    fontSize: 18
   }
 });
