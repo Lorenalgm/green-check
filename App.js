@@ -69,7 +69,7 @@ export default function App() {
         <View style={styles.containerCodigoLido}>
           <View style={styles.containerProduto}>
             {/* Caso produto seja lido mas não seja encontrado, tentar outro produto. */}
-            {produto.status_verbose == 'product not found' ? (
+            {produto?.status_verbose == 'product not found' ? (
               <View>
                 <Text>Produto não encontrado. Por favor, tente escanear outro produto.</Text>
               </View>
@@ -148,7 +148,9 @@ const styles = StyleSheet.create({
   textoBotao: {
     fontWeight: 'bold',
     color: 'white',
-    fontSize: 16
+    fontSize: 16,
+    textAlign: 'center'
+
   },
   containerCodigoLido: {
     flex: 1,
