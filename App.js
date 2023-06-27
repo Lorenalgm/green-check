@@ -70,16 +70,16 @@ export default function App() {
               <Image style={styles.logoProduto} source={{ uri: produto.product.image_url }} />
               <Text style={styles.tituloProduto}>{produto.product?.product_name}</Text>
             </View>
-            <View>
+            <View style={styles.grupoTopicoProduto}>
               <Text style={styles.textoTopicoProduto}>Impacto Ambiental</Text>
               <Text>Eco Score: Letra {produto.product.ecoscore_grade}</Text>
+              <Text>Eco Score: Letra {produto.product.ecoscore_grade}</Text>
             </View>
-            <View>
+            <View style={styles.grupoTopicoProduto}>
               <Text style={styles.textoTopicoProduto}>Valores nutricionais</Text>
               <Text>Score: {produto.nutriscore_data?.grade?produto.nutriscore_data.grade: 'Não definido'} </Text>
             </View>
           </View>
-          
           <TouchableOpacity style={styles.botao} onPress={() => setProduto(null)}>
             <Text style={styles.textoBotao}>Voltar</Text>
           </TouchableOpacity>
@@ -106,12 +106,11 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'space-around',
     alignItems: 'center',
     paddingTop: Constants.statusBarHeight,
   },
   containerPaginaInicial: {
-    height: '80%',
+    flex: 1,
     justifyContent: 'space-around',
   },
   conteudo: {
@@ -140,23 +139,28 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
   containerCodigoLido:{
-    height: '80%',
+    flex: 1,
     width: '100%',
     alignItems: 'center',
     justifyContent: 'space-around',
   },
   containerProduto: {
-    alignItems: 'center',
     justifyContent: 'space-around', 
-    width: '100%'
+    height: '70%'
   },
   tituloProduto: {
     fontSize: 24,
     fontWeight: 'bold',
+    textAlign: 'center',
+    padding: 15,
   },
   logoProduto: {
-    width: '50%',
-    height: '50%',
+    width: 200,
+    height: 200,
+  },
+  grupoTopicoProduto: {
+    flex: 1,
+    gap: 10,
   },
   textoTopicoProduto: {
     fontWeight: 'bold',
