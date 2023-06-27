@@ -23,7 +23,7 @@ export default function App() {
 
   const localizaProduto = async ({ data }) => {
     setLoading(true);
-    
+
     try {
       const response = await fetch(
         `https://world.openfoodfacts.org/api/v0/product/${data}.json`
@@ -33,10 +33,11 @@ export default function App() {
       setProduto(dados);
     } catch (error) {
       console.error(error);
-    }finally {
+    } finally {
       setLoading(false);
     }
   };
+
 
   // Alertas para o usuário sobre a permissão da câmera
   if (possuiPermissao === null) {
@@ -57,46 +58,57 @@ export default function App() {
       />}
 
       {/* Carregando a leitura do código de barras */}
-      {loading && 
-      <View style={styles.overlay}>
-              <ActivityIndicator size="large" color="#ffffff" />
-              <Text>Carregando...</Text>
-      </View>}
+      {loading &&
+        <View style={styles.overlay}>
+          <ActivityIndicator size="large" color="#ffffff" />
+          <Text>Carregando...</Text>
+        </View>}
 
       {/* Produto foi lido e os detalhes exibidos  */}
-      {produto && !loading && <View style={styles.containerCodigoLido}>
-          <View style={styles.containerProduto} >
-            <View>
-              <Image style={styles.logoProduto} source={{ uri: produto.product.image_url }} />
-              <Text style={styles.tituloProduto}>{produto.product?.product_name}</Text>
-            </View>
-            <View style={styles.grupoTopicoProduto}>
-              <Text style={styles.textoTopicoProduto}>Impacto Ambiental</Text>
-              <Text>Eco Score: Letra {produto.product.ecoscore_grade}</Text>
-              <Text>Eco Score: Letra {produto.product.ecoscore_grade}</Text>
-            </View>
-            <View style={styles.grupoTopicoProduto}>
-              <Text style={styles.textoTopicoProduto}>Valores nutricionais</Text>
-              <Text>Score: {produto.nutriscore_data?.grade?produto.nutriscore_data.grade: 'Não definido'} </Text>
-            </View>
+      {produto && !loading && (
+        <View style={styles.containerCodigoLido}>
+          <View style={styles.containerProduto}>
+            {/* Caso produto seja lido mas não seja encontrado, tentar outro produto. */}
+            {produto.status_verbose == 'product not found' ? (
+              <View>
+                <Text>Produto não encontrado. Por favor, tente escanear outro produto.</Text>
+              </View>
+            ) : (
+              <View>
+                <Image style={styles.logoProduto} source={{ uri: produto.product?.image_url }} />
+                <Text style={styles.tituloProduto}>{produto.product?.product_name}</Text>
+
+                <View style={styles.grupoTopicoProduto}>
+                  <Text style={styles.textoTopicoProduto}>Impacto Ambiental</Text>
+                  <Text>Eco Score: Letra {produto.product?.ecoscore_grade}</Text>
+                  <Text>Eco Score: Letra {produto.product?.ecoscore_grade}</Text>
+                </View>
+
+                <View style={styles.grupoTopicoProduto}>
+                  <Text style={styles.textoTopicoProduto}>Valores nutricionais</Text>
+                  <Text>Score: {produto.nutriscore_data?.grade || 'Não definido'}</Text>
+                </View>
+              </View>
+            )}
+            <TouchableOpacity style={styles.botao} onPress={() => setProduto(null)}>
+              <Text style={styles.textoBotao}>Voltar</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity style={styles.botao} onPress={() => setProduto(null)}>
-            <Text style={styles.textoBotao}>Voltar</Text>
-          </TouchableOpacity>
-      </View>}
+        </View>
+      )}
 
       {/* Tela inicial */}
       {!escaneado && !produto && <View style={styles.containerPaginaInicial}>
-      <View style={styles.conteudo}>
-        <Image source={iconeScanner} />
-        <View>
-          <Text style={styles.titulo}>Escaneie um produto</Text>
-          <Text style={styles.descricao}>Aproxime seu celular do código de barras {"\n"} para obter informações sustentáveis</Text>
+        <View style={styles.conteudo}>
+          <Image source={iconeScanner} />
+          <View>
+            <Text style={styles.titulo}>Escaneie um produto</Text>
+            <Text style={styles.descricao}>Aproxime seu celular do código de barras {"\n"} para obter informações sustentáveis</Text>
+          </View>
         </View>
-      </View>
-      <TouchableOpacity style={styles.botao} onPress={() => setEscaneado(true)}>
-        <Text style={styles.textoBotao}>Escanear produto</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.botao} onPress={() => setEscaneado(true)}>
+          <Text style={styles.textoBotao}>Escanear produto</Text>
+        </TouchableOpacity>
       </ View>}
     </View>
   );
@@ -124,9 +136,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: 'center'
   },
-  descricao:{
+  descricao: {
     textAlign: 'center'
-  },  
+  },
   botao: {
     backgroundColor: '#83A901',
     paddingVertical: 15,
@@ -138,14 +150,14 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16
   },
-  containerCodigoLido:{
+  containerCodigoLido: {
     flex: 1,
     width: '100%',
     alignItems: 'center',
     justifyContent: 'space-around',
   },
   containerProduto: {
-    justifyContent: 'space-around', 
+    justifyContent: 'space-around',
     height: '70%'
   },
   tituloProduto: {
