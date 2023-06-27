@@ -5,36 +5,27 @@ import iconeScanner from './assets/scanner.png';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 
 export default function App() {
-  const [hasPermission, setHasPermission] = useState(null);
+  const [possuiPermissao, setPossuiPermissao] = useState(null);
   const [escaneado, setEscaneado] = useState(false);
   const [produto, setProduto] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // Envia para o usuário permitir o acesso à câmera
   useEffect(() => {
-    const getBarCodeScannerPermissions = async () => {
+    const solicitaPermissaoParaEscanear = async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
-      setHasPermission(status === 'granted');
+      setPossuiPermissao(status === 'granted');
     };
 
-    getBarCodeScannerPermissions();
+    solicitaPermissaoParaEscanear();
   }, []);
 
-  if (hasPermission === null) {
-    return <Text>Solicitando permissão de acesso à câmera...</Text>;
-  }
-  if (hasPermission === false) {
-    return <Text>Acesso à câmera não permitido.</Text>;
-  }
-
-  const gerenciaCodigoBarrasLido = ({ data }) => {
+  const localizaProduto = async ({ data }) => {
     setLoading(true);
-    localizaProduto(data);
-  };
-
-  const localizaProduto = async (barcode) => {
+    
     try {
       const response = await fetch(
-        `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`
+        `https://world.openfoodfacts.org/api/v0/product/${data}.json`
       );
       const dados = await response.json();
       setEscaneado(false);
@@ -46,39 +37,42 @@ export default function App() {
     }
   };
 
-  if(produto || loading){
-    return(
-      <View style={styles.container}>
-         {loading && (
-            <View style={styles.overlay}>
-              <ActivityIndicator size="large" color="#ffffff" />
-              <Text style={styles.overlayText}>Carregando...</Text>
-            </View>
-          )}
-          {produto && <><Text>Código de barras escaneado!</Text>
-          <Text>Produto: {produto.product.brands}</Text>
-          <Text>Produto: {produto.product.image_front_small_url}</Text>
-          <Image style={{width: '100%', height: '50%'}} source={{ uri: produto.product.image_front_small_url }} />
-          {/* <Text style={styles.overlayText}>Impacto ambiental: {productData.product.environment_impact_level}</Text> */}
-          <TouchableOpacity onPress={() => setProduto(null)}>
-            <Text>Voltar</Text>
-          </TouchableOpacity></>}
-      </View>
-    )
+  // Alertas para o usuário sobre a permissão da câmera
+  if (possuiPermissao === null) {
+    return <Text>Solicitando permissão de acesso à câmera...</Text>;
   }
-
-  if(escaneado){
-    return(
-      <BarCodeScanner
-        onBarCodeScanned={gerenciaCodigoBarrasLido}
-        style={StyleSheet.absoluteFillObject} />
-    )
+  if (possuiPermissao === false) {
+    return <Text>Acesso à câmera não permitido.</Text>;
   }
 
   return (
     <View style={styles.container}>
       <Image source={logo} />
-      <View style={styles.conteudo}>
+
+      {/* Abre a câmera para escanear */}
+      {escaneado && <BarCodeScanner
+        onBarCodeScanned={localizaProduto}
+        style={StyleSheet.absoluteFillObject} />}
+
+      {/* Carregando a leitura do código de barras */}
+      {loading && 
+      <View style={styles.overlay}>
+              <ActivityIndicator size="large" color="#ffffff" />
+              <Text style={styles.overlayText}>Carregando...</Text>
+      </View>}
+
+      {/* Produto foi lido e os detalhes exibidos  */}
+      {produto && <><Text>Código de barras escaneado!</Text>
+          <Text>Produto: {produto.product.brands}</Text>
+          <Image style={{width: '100%', height: '50%'}} source={{ uri: produto.product.image_front_small_url }} />
+          {/* <Text style={styles.overlayText}>Impacto ambiental: {productData.product.environment_impact_level}</Text> */}
+          <TouchableOpacity onPress={() => setProduto(null)}>
+            <Text>Voltar</Text>
+          </TouchableOpacity>
+      </>}
+
+      {/* Tela inicial */}
+      {!escaneado && !produto && <><View style={styles.conteudo}>
         <Image source={iconeScanner} />
         <View>
           <Text style={styles.titulo}>Comece escaneando</Text>
@@ -88,10 +82,12 @@ export default function App() {
       <TouchableOpacity style={styles.botaoLerCodigo} onPress={() => setEscaneado(true)}>
         <Text style={styles.textoLerCodigo}>Ler código</Text>
       </TouchableOpacity>
+      </>}
     </View>
   );
 }
 
+// Estiliza nossa tela conforme o design
 const styles = StyleSheet.create({
   container: {
     flex: 1,
